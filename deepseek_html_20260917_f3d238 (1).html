@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Тысяча — кости · Premium</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    margin:0;min-height:100vh;display:grid;place-items:center;padding:16px 10px;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, #1a4a35 0%, transparent 55%),
+      radial-gradient(ellipse 70% 50% at 50% 110%, #0d3524 0%, transparent 55%),
+      linear-gradient(180deg,#0a1f16 0%,#061410 100%);
+    font-family:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+    color:#fff;-webkit-user-select:none;user-select:none;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.014) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.014) 0 1px, transparent 1px 3px);
+  }
+
+  /* ================= КАРТОЧКА ================= */
+  .game{
+    --die: clamp(34px, 11.4vw, 60px);
+    --gap: clamp(4px, 1.1vw, 8px);
+    position:relative;
+    width:min(470px,100%);
+    padding:16px;
+    border-radius:30px;
+    background:linear-gradient(160deg,#123a2b 0%,#0b2a1e 38%,#061a12 100%);
+    border:1px solid rgba(212,175,85,.32);
+    box-shadow:
+      0 50px 100px -35px rgba(0,0,0,.95),
+      0 0 0 1px rgba(0,0,0,.6),
+      0 1px 0 rgba(255,235,180,.14) inset,
+      0 0 90px -25px rgba(46,160,100,.55);
+    overflow:hidden;isolation:isolate;z-index:1;
+  }
+  .game::before{
+    content:'';position:absolute;inset:6px;border-radius:24px;pointer-events:none;z-index:0;
+    border:1px solid rgba(212,175,85,.16);
+    background:
+      radial-gradient(ellipse 100% 55% at 50% 0%, rgba(255,220,130,.07), transparent 65%),
+      radial-gradient(ellipse 80% 40% at 50% 100%, rgba(46,180,110,.06), transparent 60%);
+  }
+  .game::after{
+    content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;opacity:.35;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(255,255,255,.012) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(-45deg, rgba(0,0,0,.03) 0 1px, transparent 1px 4px);
+  }
+  .game > *{position:relative;z-index:1}
+
+  /* ================= ШАПКА ================= */
+  .head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px}
+  .brand{display:flex;align-items:center;gap:10px;min-width:0}
+  .brand-ico{
+    font-size:24px;line-height:1;
+    filter:drop-shadow(0 0 12px rgba(255,200,90,.85)) drop-shadow(0 2px 3px rgba(0,0,0,.7));
+    animation:bob 2.8s ease-in-out infinite;
+  }
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-3px) rotate(6deg)}}
+  .brand h1{
+    font-size:17px;font-weight:900;letter-spacing:.17em;line-height:1;margin:0;
+    font-family:Georgia,'Times New Roman',serif;
+    color:#f5d271;
+    text-shadow:0 1px 0 rgba(0,0,0,.55),0 0 22px rgba(245,210,113,.55);
+  }
+  .brand .sub{
+    font-size:8px;letter-spacing:.28em;color:#7fb894;margin-top:4px;text-transform:uppercase;font-weight:600;
+  }
+
+  .hud{display:flex;gap:7px}
+  .hud-item{
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:6px 11px;border-radius:12px;
+    background:linear-gradient(180deg,rgba(212,175,85,.14),rgba(0,0,0,.28));
+    border:1px solid rgba(212,175,85,.28);
+    box-shadow:inset 0 1px 0 rgba(255,235,180,.18),0 3px 8px -4px rgba(0,0,0,.8);
+  }
+  .hud-item span{font-size:7px;letter-spacing:.16em;color:#a8c9b4}
+  .hud-item b{
+    font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;
+    color:#ffe9a8;
+    text-shadow:0 1px 0 rgba(0,0,0,.5),0 0 14px rgba(255,220,130,.45);
+  }
+
+  /* ================= ЦЕЛЬ ================= */
+  .goal{margin-bottom:10px}
+  .goal-top{display:flex;justify-content:space-between;align-items:baseline;font-size:8px;letter-spacing:.16em;color:#7fb894;margin-bottom:5px;font-weight:600}
+  .goal-top b{font-size:11px;letter-spacing:.03em;color:#f0d79b;font-variant-numeric:tabular-nums;text-shadow:0 1px 0 rgba(0,0,0,.5)}
+  .goal-bar{
+    height:6px;border-radius:99px;background:rgba(0,0,0,.45);overflow:hidden;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.8),0 1px 0 rgba(255,235,180,.08);
+  }
+  .goal-bar i{
+    display:block;height:100%;width:0%;border-radius:99px;
+    background:linear-gradient(90deg,#1f8a55,#4ade80 50%,#ffd76a);
+    box-shadow:0 0 16px rgba(74,222,128,.8),inset 0 1px 0 rgba(255,255,255,.4);
+    transition:width .55s cubic-bezier(.4,1.4,.5,1);
+  }
+
+  /* ================= ОБЛОМЫ ================= */
+  .bust-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:7px 12px;border-radius:12px;margin-bottom:11px;
+    background:linear-gradient(180deg,rgba(120,20,40,.30),rgba(60,10,20,.16));
+    border:1px solid rgba(200,60,90,.32);
+    box-shadow:inset 0 1px 0 rgba(255,150,170,.10);
+  }
+  .bust-row span{font-size:8px;letter-spacing:.18em;color:#ff9aae;font-weight:700}
+  .bust-dots{display:flex;gap:6px}
+  .bust-dots i{
+    width:12px;height:12px;border-radius:50%;
+    background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.13);
+    transition:.3s;box-shadow:inset 0 1px 2px rgba(0,0,0,.7);
+  }
+  .bust-dots i.on{
+    background:radial-gradient(circle at 35% 30%,#ff9aae,#c81f45);
+    border-color:rgba(255,180,195,.6);
+    box-shadow:0 0 14px rgba(255,60,100,.95),inset 0 1px 0 rgba(255,255,255,.4);
+    animation:dotPulse .5s ease;
+  }
+  @keyframes dotPulse{0%{transform:scale(.5)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
+
+  /* ================= СТОЛ ================= */
+  .table{
+    position:relative;padding:14px 9px;border-radius:22px;
+    background:
+      radial-gradient(ellipse 80% 70% at 50% 42%, rgba(40,150,90,.42), transparent 72%),
+      radial-gradient(ellipse 120% 90% at 50% 50%, #14442f 0%, #0a2418 62%, #061610 100%);
+    border:1px solid rgba(212,175,85,.28);
+    box-shadow:
+      inset 0 0 70px rgba(0,0,0,.85),
+      inset 0 2px 0 rgba(255,235,180,.10),
+      0 8px 26px -12px rgba(0,0,0,.9);
+    overflow:hidden;
+  }
+  .table::before{
+    content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+    background:radial-gradient(ellipse 55% 35% at 50% 18%, rgba(255,255,255,.07), transparent 70%);
+  }
+  .table::after{
+    content:'';position:absolute;inset:6px;border-radius:16px;pointer-events:none;
+    border:1px solid rgba(212,175,85,.14);
+  }
+
+  /* Кости в один ряд */
+  .dice{
+    display:flex;flex-wrap:nowrap;
+    justify-content:center;
+    align-items:center;
+    gap:var(--gap);
+    position:relative;z-index:1;
+    padding:3px 0;
+    min-height:calc(var(--die) + 6px);
+  }
+
+  /* ================= КОСТЬ ================= */
+  .die{
+    position:relative;
+    width:var(--die);height:var(--die);
+    flex:0 0 auto;
+    border-radius:calc(var(--die)*.22);
+    background:
+      radial-gradient(circle at 32% 26%, #ffffff 0%, #fdf9ee 22%, #efe7d3 58%, #d5cab2 100%);
+    box-shadow:
+      0 4px 0 #9c917a,
+      0 8px 16px -6px rgba(0,0,0,.9),
+      0 0 0 1px rgba(255,255,255,.5) inset,
+      0 2px 3px rgba(255,255,255,.55) inset;
+    cursor:pointer;
+    transition:transform .2s cubic-bezier(.3,1.5,.5,1),box-shadow .2s,filter .2s,opacity .25s;
+    will-change:transform,opacity;
+  }
+  .die .pip{
+    position:absolute;width:18%;height:18%;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #5a4d84 0%, #2a1a55 45%, #150c2c 100%);
+    box-shadow:
+      inset 0 -1px 1.5px rgba(255,255,255,.28),
+      inset 0 1px 1px rgba(0,0,0,.5),
+      0 1px 1px rgba(255,255,255,.35);
+    transform:translate(-50%,-50%);pointer-events:none;
+  }
+  .die:hover:not(.taken):not(.throwing){transform:translateY(-5px)}
+  .die.selected{
+    transform:translateY(-12px) scale(1.06);
+    box-shadow:
+      0 8px 0 #9c917a,
+      0 16px 24px -8px rgba(0,0,0,.9),
+      0 0 0 3px #ffd76a,
+      0 0 34px rgba(255,215,106,.95),
+      0 0 0 1px rgba(255,255,255,.5) inset;
+  }
+  .die.selected .pip{background:radial-gradient(circle at 35% 30%,#b39dff,#4c2bb8 75%)}
+  .die.scoring:not(.taken):not(.selected){
+    box-shadow:
+      0 4px 0 #9c917a,
+      0 8px 16px -6px rgba(0,0,0,.9),
+      0 0 0 2.5px rgba(255,215,106,.55),
+      0 0 24px rgba(255,215,106,.5),
+      0 0 0 1px rgba(255,255,255,.5) inset;
+  }
+
+  /* Кость отложена — улетает с поля */
+  .die.taken{
+    animation:flyAway .55s cubic-bezier(.55,0,.75,0) forwards;
+    pointer-events:none;
+  }
+  @keyframes flyAway{
+    0%{opacity:1;transform:translate(0,0) scale(1) rotate(0)}
+    100%{opacity:0;transform:translate(0,55px) scale(.15) rotate(70deg)}
+  }
+
+  /* Бросок из стакана */
+  .die.throwing{
+    animation:throwIn .85s cubic-bezier(.22,.75,.35,1.05) both;
+  }
+  @keyframes throwIn{
+    0%{
+      opacity:0;
+      transform:translate(var(--tx,-220px),var(--ty,300px)) rotate(var(--tr,220deg)) scale(.25);
+    }
+    18%{opacity:1}
+    68%{
+      opacity:1;
+      transform:translate(0,-12px) rotate(0) scale(1.12);
+    }
+    84%{
+      transform:translate(0,5px) rotate(0) scale(.95);
+    }
+    100%{
+      opacity:1;
+      transform:translate(0,0) rotate(0) scale(1);
+    }
+  }
+
+  /* ================= ОЧКИ ================= */
+  .scores{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+  .score-box{
+    padding:9px 12px;border-radius:13px;text-align:center;
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(0,0,0,.28));
+    border:1px solid rgba(212,175,85,.16);
+    box-shadow:inset 0 1px 0 rgba(255,235,180,.08),0 3px 8px -5px rgba(0,0,0,.7);
+  }
+  .score-box span{display:block;font-size:7.5px;letter-spacing:.16em;color:#7fb894;margin-bottom:3px;font-weight:700}
+  .score-box b{
+    font-size:19px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:.01em;
+    color:#e8e0d0;text-shadow:0 1px 0 rgba(0,0,0,.6);
+  }
+  .score-box.accent{
+    border-color:rgba(212,175,85,.45);
+    background:linear-gradient(180deg,rgba(212,175,85,.18),rgba(120,85,20,.10));
+    box-shadow:inset 0 1px 0 rgba(255,235,180,.22),0 0 22px -8px rgba(255,190,60,.6);
+  }
+  .score-box.accent b{
+    color:#ffd76a;
+    text-shadow:0 1px 0 rgba(0,0,0,.5),0 0 16px rgba(255,210,110,.7);
+  }
+
+  /* ================= СТАТУС ================= */
+  .status{
+    margin-top:10px;padding:10px 12px;border-radius:12px;text-align:center;
+    font-size:10.5px;letter-spacing:.03em;font-weight:600;min-height:38px;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,rgba(0,0,0,.32),rgba(0,0,0,.18));
+    border:1px solid rgba(212,175,85,.14);
+    color:#a8c9b4;transition:.3s;
+  }
+  .status.good{color:#8dffb8;border-color:rgba(74,222,128,.4);background:linear-gradient(180deg,rgba(40,140,80,.28),rgba(20,80,45,.14))}
+  .status.bad{color:#ffa6b8;border-color:rgba(220,70,100,.42);background:linear-gradient(180deg,rgba(140,30,55,.30),rgba(70,15,30,.15))}
+  .status.warn{color:#ffd76a;border-color:rgba(212,175,85,.42);background:linear-gradient(180deg,rgba(140,105,25,.30),rgba(70,50,10,.15))}
+
+  /* ================= КНОПКИ ================= */
+  .controls{display:flex;gap:8px;margin-top:11px}
+  .btn{
+    flex:1;height:50px;border:none;border-radius:15px;cursor:pointer;font-family:inherit;
+    font-size:11px;font-weight:900;letter-spacing:.1em;color:#cfd9d2;
+    background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(0,0,0,.35));
+    border:1px solid rgba(212,175,85,.20);
+    box-shadow:inset 0 1px 0 rgba(255,235,180,.16),0 5px 12px -7px rgba(0,0,0,.9);
+    transition:transform .07s,filter .15s,opacity .2s,font-size .15s;
+    display:grid;place-items:center;line-height:1.15;padding:0 4px;
+    position:relative;overflow:hidden;
+  }
+  .btn:hover:not(:disabled){filter:brightness(1.2);color:#fff}
+  .btn:active:not(:disabled){transform:translateY(3px)}
+  .btn:disabled{opacity:.26;cursor:not-allowed;filter:grayscale(.6)}
+
+  .btn.primary{
+    color:#06281a;border-color:rgba(255,235,180,.5);flex:1.45;
+    background:linear-gradient(180deg,#8ff0b8 0%,#3ec97a 45%,#158a4a 100%);
+    box-shadow:
+      0 6px 0 #0a5530,
+      0 16px 30px -12px rgba(60,220,130,.95),
+      inset 0 1px 0 rgba(255,255,255,.75),
+      inset 0 -1px 0 rgba(0,0,0,.15);
+    text-shadow:0 1px 0 rgba(255,255,255,.35);
+  }
+  .btn.primary:active:not(:disabled){
+    transform:translateY(5px);
+    box-shadow:0 1px 0 #0a5530,0 8px 18px -10px rgba(60,220,130,.9),inset 0 1px 0 rgba(255,255,255,.75);
+  }
+  .btn.primary.long{font-size:9px;letter-spacing:.03em}
+
+  .btn.gold{
+    color:#3a1a00;border-color:rgba(255,235,180,.6);
+    background:linear-gradient(180deg,#ffe89a 0%,#ffbb24 46%,#d4780a 100%);
+    box-shadow:
+      0 6px 0 #8a4d00,
+      0 16px 30px -12px rgba(255,170,30,.9),
+      inset 0 1px 0 rgba(255,255,255,.9),
+      inset 0 -1px 0 rgba(120,60,0,.2);
+    text-shadow:0 1px 0 rgba(255,255,255,.4);
+  }
+  .btn.gold:active:not(:disabled){
+    transform:translateY(5px);
+    box-shadow:0 1px 0 #8a4d00,0 8px 18px -10px rgba(255,170,30,.9),inset 0 1px 0 rgba(255,255,255,.9);
+  }
+
+  .btn-ico{flex:0 0 50px;font-size:19px;letter-spacing:0}
+
+  /* ================= ИСТОРИЯ ================= */
+  .history{margin-top:11px}
+  .history-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:8px;letter-spacing:.16em;color:#7fb894;margin-bottom:6px;font-weight:700;
+  }
+  .history-head b{color:#f0d79b;font-size:9px;letter-spacing:.06em;font-weight:800}
+  .history-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+  .history-cell{
+    aspect-ratio:1/1.25;border-radius:8px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(0,0,0,.3));
+    border:1px solid rgba(212,175,85,.14);
+    box-shadow:inset 0 1px 0 rgba(255,235,180,.06);
+    transition:.3s;padding:2px 1px;overflow:hidden;
+  }
+  .history-cell .rn{font-size:6.5px;color:#5a8a70;line-height:1;font-weight:800;letter-spacing:.06em}
+  .history-cell .rs{
+    font-size:9px;font-weight:900;color:#cfd9d2;line-height:1;margin-top:3px;
+    font-variant-numeric:tabular-nums;letter-spacing:-.02em;
+  }
+  .history-cell .rs.zero{color:#3d5a4a}
+  .history-cell.current{
+    border-color:rgba(255,215,106,.7);
+    background:linear-gradient(180deg,rgba(212,175,85,.22),rgba(120,85,20,.10));
+    box-shadow:0 0 14px -2px rgba(255,200,80,.7),inset 0 1px 0 rgba(255,235,180,.25);
+    animation:cellGlow 2s ease-in-out infinite;
+  }
+  @keyframes cellGlow{
+    0%,100%{box-shadow:0 0 12px -3px rgba(255,200,80,.6),inset 0 1px 0 rgba(255,235,180,.25)}
+    50%{box-shadow:0 0 20px -2px rgba(255,200,80,.95),inset 0 1px 0 rgba(255,235,180,.35)}
+  }
+  .history-cell.current .rn{color:#ffd76a}
+  .history-cell.current .rs{color:#ffd76a;text-shadow:0 0 8px rgba(255,200,80,.6)}
+  .history-cell.done{
+    background:linear-gradient(180deg,rgba(60,200,120,.20),rgba(20,90,55,.10));
+    border-color:rgba(74,222,128,.4);
+  }
+  .history-cell.done .rn{color:#7fb894}
+  .history-cell.done .rs{color:#8dffb8;text-shadow:0 0 8px rgba(74,222,128,.5)}
+  .history-cell.bust{
+    background:linear-gradient(180deg,rgba(200,40,70,.24),rgba(90,15,35,.10));
+    border-color:rgba(220,70,100,.42);
+  }
+  .history-cell.bust .rn{color:#ff9aae}
+  .history-cell.bust .rs{color:#ff9aae;text-shadow:0 0 8px rgba(255,80,110,.6)}
+
+  /* ================= КОМБИНАЦИИ ================= */
+  .combos{
+    margin-top:11px;border-radius:16px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(0,0,0,.28));
+    border:1px solid rgba(212,175,85,.20);
+    box-shadow:inset 0 1px 0 rgba(255,235,180,.08);
+  }
+  .combos summary{
+    padding:11px 14px;cursor:pointer;font-size:10px;font-weight:800;letter-spacing:.1em;
+    color:#f0d79b;list-style:none;display:flex;align-items:center;justify-content:space-between;
+    transition:.2s;text-shadow:0 1px 0 rgba(0,0,0,.4);
+  }
+  .combos summary::-webkit-details-marker{display:none}
+  .combos summary::after{content:'⌄';font-size:14px;color:#d4af55;transition:transform .25s}
+  .combos[open] summary::after{transform:rotate(180deg)}
+  .combos summary:hover{background:rgba(212,175,85,.10);color:#fff}
+
+  .combo-body{padding:2px 12px 13px;max-height:250px;overflow-y:auto}
+  .combo-body::-webkit-scrollbar{width:5px}
+  .combo-body::-webkit-scrollbar-thumb{background:rgba(212,175,85,.45);border-radius:9px}
+
+  .combo-row{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:6px 0;border-bottom:1px solid rgba(212,175,85,.10);
+  }
+  .combo-row:last-child{border-bottom:none}
+  .combo-dice{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+  .combo-name{font-size:9px;color:#7fb894;letter-spacing:.04em;flex:1;text-align:right;padding-right:3px}
+  .combo-val{
+    font-size:12px;font-weight:900;font-variant-numeric:tabular-nums;
+    min-width:46px;text-align:right;color:#ffd76a;
+    text-shadow:0 1px 0 rgba(0,0,0,.5),0 0 10px rgba(255,210,110,.5);
+  }
+  .combo-val.hi{
+    color:#5ff0a0;
+    text-shadow:0 1px 0 rgba(0,0,0,.5),0 0 12px rgba(74,222,128,.7);
+  }
+
+  .mini-die{
+    position:relative;width:19px;height:19px;border-radius:4.5px;
+    background:radial-gradient(circle at 32% 26%,#fff 0%,#f5efdd 55%,#d5cab2 100%);
+    box-shadow:0 1.5px 0 #9c917a,0 1px 0 rgba(255,255,255,.55) inset;flex:0 0 auto;
+  }
+  .mini-die .pip{
+    position:absolute;width:18%;height:18%;border-radius:50%;
+    background:#2a1a55;transform:translate(-50%,-50%);
+  }
+
+  .rules{padding:9px 14px 13px;border-top:1px solid rgba(212,175,85,.10);margin-top:3px}
+  .rules li{
+    font-size:9px;line-height:1.65;color:#7fb894;letter-spacing:.02em;
+    list-style:none;padding-left:14px;position:relative;margin-bottom:3px;
+  }
+  .rules li::before{content:'◆';position:absolute;left:0;color:#d4af55;font-size:7px;top:2px}
+  .rules li b{color:#f0d79b}
+
+  /* ================= ОВЕРЛЕЙ ================= */
+  .overlay{
+    position:absolute;inset:0;z-index:60;border-radius:inherit;
+    background:radial-gradient(ellipse at 50% 40%, rgba(20,80,50,.96), rgba(4,14,10,.98));
+    backdrop-filter:blur(10px);
+    display:grid;place-items:center;padding:22px;text-align:center;
+    opacity:0;pointer-events:none;transition:opacity .4s;
+  }
+  .overlay.show{opacity:1;pointer-events:auto}
+  .ov-icon{
+    font-size:52px;margin-bottom:10px;display:block;animation:bob 2s ease-in-out infinite;
+    filter:drop-shadow(0 0 24px rgba(255,200,80,.7));
+  }
+  .ov-title{
+    font-size:21px;font-weight:900;letter-spacing:.1em;margin-bottom:8px;
+    font-family:Georgia,'Times New Roman',serif;
+  }
+  .ov-title.win{color:#ffd76a;text-shadow:0 1px 0 rgba(0,0,0,.6),0 0 30px rgba(255,210,110,.9)}
+  .ov-title.lose{color:#ff9aae;text-shadow:0 0 28px rgba(255,80,110,.7)}
+  .ov-text{font-size:12px;color:#a8c9b4;line-height:1.7;margin-bottom:15px}
+  .ov-text b{
+    font-size:15px;color:#ffd76a;
+    text-shadow:0 1px 0 rgba(0,0,0,.5),0 0 12px rgba(255,210,110,.6);
+  }
+  .ov-hs{
+    display:inline-block;margin-bottom:16px;padding:7px 16px;border-radius:11px;
+    background:linear-gradient(180deg,rgba(212,175,85,.18),rgba(120,85,20,.08));
+    border:1px solid rgba(212,175,85,.4);
+    font-size:10px;letter-spacing:.12em;color:#ffd76a;font-weight:800;
+    box-shadow:0 0 20px -6px rgba(255,190,60,.5);
+  }
+  .ov-btn{
+    padding:13px 36px;border:none;border-radius:14px;cursor:pointer;font-family:inherit;
+    font-size:13px;font-weight:900;letter-spacing:.12em;color:#06281a;
+    background:linear-gradient(180deg,#8ff0b8 0%,#3ec97a 45%,#158a4a 100%);
+    box-shadow:
+      0 6px 0 #0a5530,
+      0 16px 30px -12px rgba(60,220,130,.95),
+      inset 0 1px 0 rgba(255,255,255,.75);
+    text-shadow:0 1px 0 rgba(255,255,255,.35);
+    transition:transform .07s;
+  }
+  .ov-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #0a5530,inset 0 1px 0 rgba(255,255,255,.75)}
+
+  /* ================= ТОСТ ================= */
+  .toast{
+    position:absolute;left:50%;top:44%;z-index:55;pointer-events:none;
+    padding:12px 24px;border-radius:15px;
+    font-size:14px;font-weight:900;letter-spacing:.07em;white-space:nowrap;
+    transform:translate(-50%,-50%) scale(.5);opacity:0;
+    transition:opacity .3s,transform .4s cubic-bezier(.2,1.6,.4,1);
+    font-family:Georgia,'Times New Roman',serif;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  .toast.gold{
+    color:#3a1a00;
+    background:linear-gradient(180deg,#fff5cd,#ffcb45 52%,#d4780a);
+    box-shadow:0 16px 50px rgba(255,170,30,.75),inset 0 1px 0 rgba(255,255,255,.9);
+  }
+  .toast.red{
+    color:#fff;
+    background:linear-gradient(180deg,#ff8fb0,#d42a55 55%,#8a0f28);
+    box-shadow:0 16px 50px rgba(220,40,80,.7),inset 0 1px 0 rgba(255,255,255,.5);
+  }
+  .toast.blue{
+    color:#fff;
+    background:linear-gradient(180deg,#5ee0a0,#159a55 55%,#0a5a30);
+    box-shadow:0 16px 50px rgba(30,190,110,.75),inset 0 1px 0 rgba(255,255,255,.45);
+  }
+
+  /* ================= ЛЕТЯЩИЕ ОЧКИ ================= */
+  .float{
+    position:absolute;font-size:17px;font-weight:900;pointer-events:none;z-index:50;
+    color:#ffd76a;
+    text-shadow:0 0 20px rgba(255,200,80,.95),0 1px 2px rgba(0,0,0,.7);
+    animation:floatUp 1.15s ease-out forwards;white-space:nowrap;
+    font-family:Georgia,'Times New Roman',serif;
+  }
+  @keyframes floatUp{
+    0%{opacity:0;transform:translate(-50%,0) scale(.6)}
+    20%{opacity:1;transform:translate(-50%,-12px) scale(1.18)}
+    100%{opacity:0;transform:translate(-50%,-66px) scale(.95)}
+  }
+</style>
+</head>
+<body>
+
+<div class="game" id="game">
+
+  <div class="head">
+    <div class="brand">
+      <span class="brand-ico">🎲</span>
+      <div>
+        <h1>ТЫСЯЧА</h1>
+        <div class="sub">игра в кости</div>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="hud-item"><span>РАУНД</span><b id="hudRound">1/10</b></div>
+      <div class="hud-item"><span>КОПИЛКА</span><b id="hudBank">0</b></div>
+    </div>
+  </div>
+
+  <div class="goal">
+    <div class="goal-top"><span>ЦЕЛЬ</span><b id="goalText">0 / 1 000</b></div>
+    <div class="goal-bar"><i id="goalFill"></i></div>
+  </div>
+
+  <div class="bust-row">
+    <span>ОБЛОМЫ ПОДРЯД</span>
+    <div class="bust-dots" id="bustDots"><i></i><i></i><i></i></div>
+  </div>
+
+  <div class="table">
+    <div class="dice" id="diceRow"></div>
+  </div>
+
+  <div class="scores">
+    <div class="score-box"><span>ОЧКИ РАУНДА</span><b id="roundScore">0</b></div>
+    <div class="score-box accent"><span>ВЫБРАНО</span><b id="selScore">0</b></div>
+  </div>
+
+  <div class="status" id="status">Нажмите «БРОСОК», чтобы начать</div>
+
+  <div class="controls">
+    <button class="btn primary" id="btnRoll">БРОСОК</button>
+    <button class="btn" id="btnSet">ОТЛОЖИТЬ</button>
+    <button class="btn gold" id="btnBank">ЗАПИСАТЬ</button>
+    <button class="btn btn-ico" id="btnAuto" title="Выбрать лучшую комбинацию">🎯</button>
+  </div>
+
+  <div class="history">
+    <div class="history-head">
+      <span>ИСТОРИЯ РАУНДОВ</span>
+      <b id="historyTotal">0 / 10 сыграно</b>
+    </div>
+    <div class="history-grid" id="historyGrid"></div>
+  </div>
+
+  <details class="combos">
+    <summary>◆ Фартовые комбинации</summary>
+    <div class="combo-body">
+      <div id="comboList"></div>
+      <div class="rules">
+        <li>Раундов в кону — <b>10</b>, за них надо набрать цель ставки</li>
+        <li>Записать раунд можно от <b>300 очков</b></li>
+        <li>Облом — в броске нет ни одной очковой кости: очки раунда сгорают</li>
+        <li><b>3 облома подряд</b> — минус 1 000 очков из копилки</li>
+        <li>Отложил все шесть костей — кости возвращаются, очки раунда остаются</li>
+      </div>
+    </div>
+  </details>
+
+  <div class="overlay" id="overlay">
+    <div>
+      <span class="ov-icon" id="ovIcon">🏆</span>
+      <div class="ov-title" id="ovTitle">ПОБЕДА</div>
+      <div class="ov-text" id="ovText"></div>
+      <div class="ov-hs" id="ovHS"></div>
+      <button class="ov-btn" id="ovBtn">ИГРАТЬ СНОВА</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+const MAX_ROUNDS = 10;
+const GOAL       = 1000;
+const MIN_BANK   = 300;
+const PENALTY    = 1000;
+const HS_KEY     = 'dice1000_highscore_v5';
+
+const PIPS = {
+  1: [[50,50]],
+  2: [[27,27],[73,73]],
+  3: [[27,27],[50,50],[73,73]],
+  4: [[27,27],[73,27],[27,73],[73,73]],
+  5: [[27,27],[73,27],[50,50],[27,73],[73,73]],
+  6: [[27,22],[27,50],[27,78],[73,22],[73,50],[73,78]]
+};
+
+/* ===== Логика подсчёта ===== */
+function nOfAKind(v, n){
+  const base = (v === 1) ? 1000 : v * 100;
+  return base * (n - 2);
+}
+
+function bestScore(counts, rem){
+  if (rem === 0) return 0;
+  let best = -1;
+
+  if (rem === 6 &&
+      counts[1] === 1 && counts[2] === 1 && counts[3] === 1 &&
+      counts[4] === 1 && counts[5] === 1 && counts[6] === 1){
+    return 1000;
+  }
+
+  if (rem === 6){
+    let pairs = 0;
+    for (let v = 1; v <= 6; v++) if (counts[v] === 2) pairs++;
+    if (pairs === 3) return 750;
+  }
+
+  for (let v = 1; v <= 6; v++){
+    for (let k = counts[v]; k >= 3; k--){
+      counts[v] -= k;
+      const sub = bestScore(counts, rem - k);
+      if (sub >= 0){
+        const s = nOfAKind(v, k) + sub;
+        if (s > best) best = s;
+      }
+      counts[v] += k;
+    }
+  }
+
+  if (counts[1] > 0){
+    counts[1]--;
+    const sub = bestScore(counts, rem - 1);
+    if (sub >= 0){
+      const s = 100 + sub;
+      if (s > best) best = s;
+    }
+    counts[1]++;
+  }
+
+  if (counts[5] > 0){
+    counts[5]--;
+    const sub = bestScore(counts, rem - 1);
+    if (sub >= 0){
+      const s = 50 + sub;
+      if (s > best) best = s;
+    }
+    counts[5]++;
+  }
+
+  return best;
+}
+
+function hasAnyScore(counts){
+  if (counts[1] > 0 || counts[5] > 0) return true;
+  for (let v = 1; v <= 6; v++) if (counts[v] >= 3) return true;
+
+  let pairs = 0, total = 0;
+  for (let v = 1; v <= 6; v++){ if (counts[v] === 2) pairs++; total += counts[v]; }
+  if (pairs === 3 && total === 6) return true;
+  if (counts[1] && counts[2] && counts[3] && counts[4] && counts[5] && counts[6]) return true;
+
+  return false;
+}
+
+function bestSubset(values){
+  let best = { score: 0, mask: 0 };
+  const n = values.length;
+  for (let mask = 1; mask < (1 << n); mask++){
+    const counts = [0,0,0,0,0,0,0];
+    let len = 0;
+    for (let i = 0; i < n; i++){
+      if (mask & (1 << i)){ counts[values[i]]++; len++; }
+    }
+    const s = bestScore(counts, len);
+    if (s > best.score) best = { score: s, mask: mask };
+  }
+  return best;
+}
+
+/* ===== Состояние ===== */
+const state = {
+  dice: [],
+  roundPoints: 0,
+  bank: 0,
+  round: 1,
+  bustStreak: 0,
+  phase: 'ready',   // ready | rolling | rolled | bust | over
+  selScore: 0
+};
+
+let roundHistory = new Array(MAX_ROUNDS).fill(null);
+
+let highScore = 0;
+try{ highScore = parseInt(localStorage.getItem(HS_KEY) || '0', 10) || 0; }catch(e){}
+
+const $ = id => document.getElementById(id);
+const diceRow    = $('diceRow');
+const statusEl   = $('status');
+const toastEl    = $('toast');
+const historyGrid= $('historyGrid');
+const diceEls    = [];
+
+/* ===== Звук ===== */
+let actx = null;
+function beep(freq, dur, type, vol, delay){
+  try{
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime + (delay || 0);
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    o.type = type || 'square';
+    o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.05, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(t); o.stop(t + dur + 0.03);
+  }catch(e){}
+}
+const sThrow = () => {
+  beep(180, 0.18, 'sawtooth', 0.05, 0);
+  [0.08,0.16,0.24].forEach((d,i)=>beep(320 + i*80, 0.05,'square',0.03,d));
+  beep(140, 0.12, 'triangle', 0.06, 0.5);
+};
+const sPick = () => beep(880, 0.06, 'triangle', 0.045);
+const sSet  = () => [660,880].forEach((f,i)=>beep(f,0.1,'triangle',0.05,i*0.06));
+const sBank = () => [523,659,784,1047].forEach((f,i)=>beep(f,0.16,'triangle',0.06,i*0.07));
+const sBust = () => [300,220,150].forEach((f,i)=>beep(f,0.22,'sawtooth',0.06,i*0.11));
+const sPen  = () => [220,180,140,100].forEach((f,i)=>beep(f,0.28,'sawtooth',0.07,i*0.13));
+const sWin  = () => [523,659,784,1047,1319].forEach((f,i)=>beep(f,0.2,'triangle',0.07,i*0.08));
+const sHot  = () => [659,880,1047,1319].forEach((f,i)=>beep(f,0.14,'sine',0.05,i*0.06));
+
+/* ===== Рендер ===== */
+function pipsHTML(v){
+  return PIPS[v].map(p =>
+    '<span class="pip" style="left:' + p[0] + '%;top:' + p[1] + '%"></span>'
+  ).join('');
+}
+
+function renderDie(i, v){ diceEls[i].innerHTML = pipsHTML(v); }
+
+function renderAll(){
+  state.dice.forEach(function(d, i){
+    renderDie(i, d.value);
+    diceEls[i].classList.toggle('taken', d.set);
+    diceEls[i].classList.toggle('selected', d.selected);
+  });
+}
+
+function markScoring(){
+  const vals = state.dice.filter(d => !d.set).map(d => d.value);
+  const counts = [0,0,0,0,0,0,0];
+  vals.forEach(v => counts[v]++);
+
+  const scoringValues = {};
+  for (let v = 1; v <= 6; v++){
+    if (counts[v] >= 3) scoringValues[v] = true;
+    if (v === 1 || v === 5) scoringValues[v] = true;
+  }
+  let pairs = 0;
+  for (let v = 1; v <= 6; v++) if (counts[v] === 2) pairs++;
+  const isThreePairs = (pairs === 3 && vals.length === 6);
+  const isStraight = counts[1] && counts[2] && counts[3] && counts[4] && counts[5] && counts[6];
+
+  state.dice.forEach(function(d, i){
+    if (d.set){ diceEls[i].classList.remove('scoring'); return; }
+    const scoring = isThreePairs || isStraight || !!scoringValues[d.value];
+    diceEls[i].classList.toggle('scoring', scoring);
+  });
+}
+
+/* ===== UI ===== */
+const fmt = n => Math.round(n).toLocaleString('ru-RU');
+
+function setStatus(text, kind){
+  statusEl.textContent = text;
+  statusEl.className = 'status' + (kind ? ' ' + kind : '');
+}
+
+function showToast(text, kind, duration){
+  toastEl.textContent = text;
+  toastEl.className = 'toast ' + (kind || 'gold');
+  void toastEl.offsetWidth;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), duration || 1500);
+}
+
+function renderHistory(){
+  let html = '';
+  let done = 0;
+  for (let i = 0; i < MAX_ROUNDS; i++){
+    const r = roundHistory[i];
+    if (r) done++;
+
+    const isCurrent = (i + 1 === state.round && state.phase !== 'over' && !r);
+    let cls = 'history-cell';
+    if (r) cls += r.bust ? ' bust' : ' done';
+    if (isCurrent) cls += ' current';
+
+    let scoreText, scoreCls = 'rs';
+    if (r){
+      scoreText = r.score > 0 ? fmt(r.score) : '0';
+      if (r.score === 0) scoreCls += ' zero';
+    } else if (isCurrent){
+      scoreText = '•';
+    } else {
+      scoreText = '—';
+      scoreCls += ' zero';
+    }
+
+    html += '<div class="' + cls + '">' +
+              '<span class="rn">' + (i + 1) + '</span>' +
+              '<span class="' + scoreCls + '">' + scoreText + '</span>' +
+            '</div>';
+  }
+  historyGrid.innerHTML = html;
+  $('historyTotal').textContent = done + ' / ' + MAX_ROUNDS + ' сыграно';
+}
+
+function updateHUD(){
+  $('hudRound').textContent = Math.min(state.round, MAX_ROUNDS) + '/' + MAX_ROUNDS;
+  $('hudBank').textContent  = fmt(state.bank);
+
+  const pct = Math.max(0, Math.min(100, (state.bank / GOAL) * 100));
+  $('goalFill').style.width = pct + '%';
+  $('goalText').textContent = fmt(Math.max(0, state.bank)) + ' / ' + fmt(GOAL);
+
+  $('roundScore').textContent = fmt(state.roundPoints);
+  $('selScore').textContent   = fmt(Math.max(0, state.selScore));
+
+  const dots = $('bustDots').children;
+  for (let i = 0; i < 3; i++){
+    dots[i].classList.toggle('on', i < state.bustStreak);
+  }
+
+  renderHistory();
+}
+
+function updateButtons(){
+  const busy   = state.phase === 'rolling' || state.phase === 'bust';
+  const over   = state.phase === 'over';
+  const anySet = state.dice.some(d => d.set);
+  const anyFree= state.dice.some(d => !d.set);
+  const hasSel = state.selScore > 0 && state.phase === 'rolled';
+
+  let canRoll = false;
+  if (!over && !busy){
+    if (state.phase === 'ready') canRoll = true;
+    else if (state.phase === 'rolled'){
+      if (hasSel) canRoll = true;
+      else if (anySet && anyFree) canRoll = true;
+    }
+  }
+
+  const btnRoll = $('btnRoll');
+  btnRoll.disabled = !canRoll;
+  btnRoll.classList.remove('long');
+  if (busy){
+    btnRoll.textContent = '...';
+  } else if (hasSel){
+    btnRoll.textContent = 'ОТЛОЖИТЬ+БРОСОК';
+    btnRoll.classList.add('long');
+  } else {
+    btnRoll.textContent = 'БРОСОК';
+  }
+
+  const canSet = !over && !busy && state.phase === 'rolled' && state.selScore > 0;
+  $('btnSet').disabled = !canSet;
+  $('btnSet').textContent = (state.selScore > 0)
+    ? 'ОТЛОЖИТЬ ' + fmt(state.selScore)
+    : 'ОТЛОЖИТЬ';
+
+  const canBank = !over && !busy && state.phase === 'rolled' && state.roundPoints >= MIN_BANK;
+  $('btnBank').disabled = !canBank;
+
+  $('btnAuto').disabled = !(!over && !busy && state.phase === 'rolled' && anyFree);
+}
+
+function updateStatus(){
+  if (state.phase === 'over') return;
+  if (state.phase === 'rolling'){ setStatus('Бросок...', ''); return; }
+  if (state.phase === 'bust'){ setStatus('Облом...', 'bad'); return; }
+  if (state.phase === 'ready'){
+    setStatus('Раунд ' + state.round + '. Нажмите «БРОСОК»', '');
+    return;
+  }
+
+  const sel = state.dice.filter(d => d.selected && !d.set);
+  if (sel.length === 0){
+    if (state.roundPoints > 0){
+      setStatus('В раунде ' + fmt(state.roundPoints) + ' очков. Выберите кости', '');
+    } else {
+      setStatus('Выберите очковые кости', '');
+    }
+  } else if (state.selScore > 0){
+    setStatus('Выбрано: ' + fmt(state.selScore) + ' очков', 'good');
+  } else {
+    setStatus('Такая комбинация не считается', 'bad');
+  }
+}
+
+function updateAll(){ updateHUD(); updateButtons(); updateStatus(); }
+
+/* ===== Действия ===== */
+function onDieClick(i){
+  if (state.phase !== 'rolled') return;
+  const d = state.dice[i];
+  if (d.set) return;
+
+  d.selected = !d.selected;
+  diceEls[i].classList.toggle('selected', d.selected);
+  if (d.selected) sPick();
+  recalcSelection();
+}
+
+function recalcSelection(){
+  const sel = state.dice.filter(d => d.selected && !d.set);
+  const counts = [0,0,0,0,0,0,0];
+  sel.forEach(d => counts[d.value]++);
+
+  state.selScore = sel.length ? bestScore(counts, sel.length) : 0;
+  if (state.selScore < 0) state.selScore = 0;
+
+  updateHUD(); updateButtons(); updateStatus();
+}
+
+function applySetAside(){
+  const gained = state.selScore;
+  if (gained <= 0) return false;
+
+  state.dice.forEach(function(d, i){
+    if (d.selected && !d.set){
+      d.set = true;
+      d.selected = false;
+      diceEls[i].classList.remove('selected','scoring','throwing');
+      // перезапускаем анимацию улёта
+      void diceEls[i].offsetWidth;
+      diceEls[i].classList.add('taken');
+    }
+  });
+  state.roundPoints += gained;
+  state.selScore = 0;
+  sSet();
+  floatPoints('+' + fmt(gained));
+  return true;
+}
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+/* ===== Бросок из стакана ===== */
+async function throwDice(indices){
+  if (!indices.length) return;
+
+  // Подготовка — очищаем и задаём случайное направление полёта
+  indices.forEach(function(i){
+    const el = diceEls[i];
+    el.classList.remove('taken','selected','scoring','throwing');
+    el.style.removeProperty('--tx');
+    el.style.removeProperty('--ty');
+    el.style.removeProperty('--tr');
+
+    // Полёт из верхней части экрана (как из стакана)
+    const angle = -Math.PI/2 + (Math.random() - 0.5) * 1.4;
+    const dist  = 160 + Math.random() * 140;
+    el.style.setProperty('--tx', Math.round(Math.cos(angle) * dist) + 'px');
+    el.style.setProperty('--ty', Math.round(Math.sin(angle) * dist) + 'px');
+    el.style.setProperty('--tr', Math.round(Math.random() * 900 - 450) + 'deg');
+  });
+
+  // Принудительный reflow, чтобы анимация стартовала чисто
+  void diceRow.offsetWidth;
+
+  indices.forEach(i => diceEls[i].classList.add('throwing'));
+  sThrow();
+
+  // Крутим значения во время полёта
+  const flipUntil = Date.now() + 520;
+  while (Date.now() < flipUntil){
+    indices.forEach(i => renderDie(i, 1 + Math.floor(Math.random() * 6)));
+    await sleep(55);
+  }
+
+  // Фиксируем финальные значения
+  indices.forEach(function(i){
+    state.dice[i].value = 1 + Math.floor(Math.random() * 6);
+    renderDie(i, state.dice[i].value);
+  });
+
+  // Ждём завершения анимации
+  await sleep(340);
+  indices.forEach(i => diceEls[i].classList.remove('throwing'));
+}
+
+async function performRoll(){
+  if (!state.dice.some(d => !d.set)) return;
+
+  state.phase = 'rolling';
+  state.selScore = 0;
+  state.dice.forEach(d => { d.selected = false; });
+  state.dice.forEach((d, i) => diceEls[i].classList.remove('selected','scoring'));
+
+  updateButtons();
+  updateStatus();
+
+  const free = [];
+  state.dice.forEach((d, i) => { if (!d.set) free.push(i); });
+
+  await throwDice(free);
+
+  // Проверка облома
+  const counts = [0,0,0,0,0,0,0];
+  free.forEach(i => counts[state.dice[i].value]++);
+
+  if (!hasAnyScore(counts)){
+    state.phase = 'bust';
+    onBust();
+    return;
+  }
+
+  state.phase = 'rolled';
+  markScoring();
+  updateAll();
+}
+
+async function handleHotDice(){
+  state.phase = 'rolling';
+  updateButtons();
+  updateStatus();
+  showToast('🔥 КОСТИ ВОЗВРАЩАЮТСЯ!', 'blue', 1200);
+  sHot();
+  await sleep(1250);
+
+  // Полный сброс всех костей — они вернутся через бросок
+  state.dice.forEach(function(d, i){
+    d.set = false;
+    d.selected = false;
+    const el = diceEls[i];
+    el.classList.remove('taken','selected','scoring','throwing');
+    el.style.removeProperty('--tx');
+    el.style.removeProperty('--ty');
+    el.style.removeProperty('--tr');
+  });
+
+  await sleep(80);
+  await performRoll();
+}
+
+async function doRoll(){
+  if (state.phase === 'rolling' || state.phase === 'bust' || state.phase === 'over') return;
+
+  // Если есть валидный выбор — сначала откладываем
+  if (state.phase === 'rolled' && state.selScore > 0){
+    applySetAside();
+
+    if (state.dice.every(d => d.set)){
+      await handleHotDice();
+      return;
+    }
+  }
+
+  await performRoll();
+}
+
+function doSet(){
+  if (state.phase !== 'rolled' || state.selScore <= 0) return;
+  applySetAside();
+
+  if (state.dice.every(d => d.set)){
+    handleHotDice();
+    return;
+  }
+  updateAll();
+  setStatus('Отложено. В раунде ' + fmt(state.roundPoints) + ' очков', 'good');
+}
+
+function doBank(){
+  if (state.phase !== 'rolled') return;
+  if (state.roundPoints < MIN_BANK) return;
+
+  const gained = state.roundPoints;
+  roundHistory[state.round - 1] = { score: gained, bust: false };
+  state.bank += gained;
+  state.roundPoints = 0;
+  state.bustStreak = 0;
+  sBank();
+  floatPoints('+' + fmt(gained) + ' в копилку');
+  showToast('💰 +' + fmt(gained) + ' ЗАПИСАНО', 'gold', 1400);
+  setStatus('Записано ' + fmt(gained) + ' очков!', 'good');
+  updateHUD(); updateButtons();
+
+  state.phase = 'rolling';   // блокируем кнопки до конца раунда
+  updateButtons();
+  setTimeout(endRound, 1200);
+}
+
+function onBust(){
+  state.roundPoints = 0;
+  roundHistory[state.round - 1] = { score: 0, bust: true };
+  state.bustStreak++;
+  sBust();
+
+  let msg = '💥 ОБЛОМ! Очки раунда сгорели';
+  let kind = 'bad';
+
+  if (state.bustStreak >= 3){
+    state.bank -= PENALTY;
+    state.bustStreak = 0;
+    msg = '💥 ТРИ ОБЛОМА! −' + fmt(PENALTY);
+    sPen();
+    showToast('−' + fmt(PENALTY) + ' ИЗ КОПИЛКИ', 'red', 1900);
+    setTimeout(() => floatPoints('−' + fmt(PENALTY)), 200);
+  } else {
+    showToast('ОБЛОМ!', 'red', 1300);
+  }
+
+  setStatus(msg, kind);
+  updateHUD();
+  updateButtons();
+
+  setTimeout(endRound, 2000);
+}
+
+function endRound(){
+  if (state.phase === 'over') return;
+
+  if (state.round >= MAX_ROUNDS){
+    finishGame();
+    return;
+  }
+
+  state.round++;
+  state.roundPoints = 0;
+  state.selScore = 0;
+
+  // Полный сброс поля
+  state.dice.forEach(function(d, i){
+    d.set = false;
+    d.selected = false;
+    d.value = 1 + Math.floor(Math.random() * 6);
+    const el = diceEls[i];
+    el.classList.remove('taken','selected','scoring','throwing','set','rolling');
+    el.style.removeProperty('--tx');
+    el.style.removeProperty('--ty');
+    el.style.removeProperty('--tr');
+    renderDie(i, d.value);
+  });
+
+  state.phase = 'ready';
+  updateAll();
+}
+
+function finishGame(){
+  state.phase = 'over';
+  updateButtons(); updateStatus();
+
+  const win = state.bank >= GOAL;
+  const newRecord = state.bank > highScore;
+  if (newRecord){
+    highScore = state.bank;
+    try{ localStorage.setItem(HS_KEY, String(highScore)); }catch(e){}
+  }
+
+  $('ovIcon').textContent  = win ? '🏆' : '💀';
+  $('ovTitle').textContent = win ? 'ЦЕЛЬ ДОСТИГНУТА' : 'ЦЕЛЬ НЕ ДОСТИГНУТА';
+  $('ovTitle').className   = 'ov-title ' + (win ? 'win' : 'lose');
+  $('ovText').innerHTML =
+    'Копилка: <b>' + fmt(state.bank) + '</b><br>' +
+    'Цель: <b>' + fmt(GOAL) + '</b><br><br>' +
+    (win ? 'Блестящая игра! 🎉' : 'В следующий раз повезёт больше.');
+  $('ovHS').textContent = '★ РЕКОРД: ' + fmt(highScore) + (newRecord ? ' — НОВЫЙ!' : '');
+  $('overlay').classList.add('show');
+
+  if (win){ sWin(); confetti(); } else { sBust(); }
+}
+
+/* ===== Вспомогательное ===== */
+function floatPoints(text){
+  const el = document.createElement('div');
+  el.className = 'float';
+  el.textContent = text;
+  el.style.left = '50%';
+  el.style.top  = '42%';
+  $('game').appendChild(el);
+  setTimeout(() => el.remove(), 1250);
+}
+
+function confetti(){
+  const colors = ['#ffd76a','#4ade80','#22d3ee','#ff5fa2','#fff6d0','#d4af55'];
+  const layer = document.createElement('div');
+  layer.style.cssText = 'position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:55;border-radius:inherit';
+  $('game').appendChild(layer);
+  for (let i = 0; i < 70; i++){
+    const c = document.createElement('div');
+    c.style.cssText =
+      'position:absolute;top:-14px;width:8px;height:12px;border-radius:2px;' +
+      'background:' + colors[Math.floor(Math.random()*colors.length)] + ';' +
+      'left:' + (Math.random()*100) + '%;' +
+      'animation:confFall ' + (1.4 + Math.random()*1.0) + 's ease-in forwards;' +
+      'animation-delay:' + (Math.random()*0.4) + 's;';
+    if (Math.random() > 0.6){ c.style.width = '6px'; c.style.height = '6px'; c.style.borderRadius = '50%'; }
+    layer.appendChild(c);
+  }
+  const style = document.createElement('style');
+  style.textContent = '@keyframes confFall{to{transform:translateY(600px) rotate(760deg);opacity:0}}';
+  document.head.appendChild(style);
+  setTimeout(() => layer.remove(), 2800);
+}
+
+function autoSelect(){
+  if (state.phase !== 'rolled') return;
+  const freeIdx = [];
+  state.dice.forEach((d, i) => { if (!d.set) freeIdx.push(i); });
+  if (!freeIdx.length) return;
+
+  const vals = freeIdx.map(i => state.dice[i].value);
+  const best = bestSubset(vals);
+  if (best.score <= 0){
+    setStatus('Нет подходящей комбинации', 'bad');
+    return;
+  }
+
+  state.dice.forEach(function(d, i){
+    d.selected = false;
+    diceEls[i].classList.remove('selected');
+  });
+
+  for (let k = 0; k < freeIdx.length; k++){
+    if (best.mask & (1 << k)){
+      const i = freeIdx[k];
+      state.dice[i].selected = true;
+      diceEls[i].classList.add('selected');
+    }
+  }
+  sPick();
+  recalcSelection();
+}
+
+function newGame(){
+  $('overlay').classList.remove('show');
+  state.bank = 0;
+  state.round = 1;
+  state.roundPoints = 0;
+  state.bustStreak = 0;
+  state.selScore = 0;
+  state.phase = 'ready';
+  roundHistory = new Array(MAX_ROUNDS).fill(null);
+
+  state.dice.forEach(function(d, i){
+    d.value = 1 + Math.floor(Math.random() * 6);
+    d.set = false;
+    d.selected = false;
+    const el = diceEls[i];
+    el.classList.remove('taken','selected','scoring','throwing','set','rolling');
+    el.style.removeProperty('--tx');
+    el.style.removeProperty('--ty');
+    el.style.removeProperty('--tr');
+    renderDie(i, d.value);
+  });
+  updateAll();
+}
+
+/* ===== Справочник ===== */
+function miniHTML(v){
+  return '<span class="mini-die">' + PIPS[v].map(p =>
+    '<span class="pip" style="left:' + p[0] + '%;top:' + p[1] + '%"></span>'
+  ).join('') + '</span>';
+}
+function miniRow(vals){ return '<span class="combo-dice">' + vals.map(miniHTML).join('') + '</span>'; }
+
+(function buildComboList(){
+  const rows = [
+    { html: miniRow([1]),           name: 'одна единица',              val: 100 },
+    { html: miniRow([5]),           name: 'одна пятёрка',              val: 50 },
+    { html: miniRow([1,1,1]),       name: 'три единицы',               val: 1000 },
+    { html: miniRow([2,2,2]),       name: 'три двойки',                val: 200 },
+    { html: miniRow([3,3,3]),       name: 'три тройки',                val: 300 },
+    { html: miniRow([4,4,4]),       name: 'три четвёрки',              val: 400 },
+    { html: miniRow([5,5,5]),       name: 'три пятёрки',               val: 500 },
+    { html: miniRow([6,6,6]),       name: 'три шестёрки',              val: 600 },
+    { html: miniRow([1,1,5,5,3,3]), name: 'три пары',                  val: 750,  hi: true },
+    { html: miniRow([1,2,3,4,5,6]), name: 'стрит 1–6',                 val: 1000, hi: true },
+    { html: miniRow([1,1,1,1]),     name: '4 один. = тройка × 2',      val: 2000, hi: true },
+    { html: miniRow([6,6,6,6,6]),   name: '5 шест. = тройка × 3',      val: 1800, hi: true },
+    { html: miniRow([6,6,6,6,6,6]), name: '6 шест. = тройка × 4',      val: 2400, hi: true }
+  ];
+
+  $('comboList').innerHTML = rows.map(r =>
+    '<div class="combo-row">' +
+      r.html +
+      '<span class="combo-name">' + r.name + '</span>' +
+      '<span class="combo-val' + (r.hi ? ' hi' : '') + '">' + r.val + '</span>' +
+    '</div>'
+  ).join('');
+})();
+
+/* ===== Инициализация ===== */
+(function init(){
+  for (let i = 0; i < 6; i++){
+    const el = document.createElement('div');
+    el.className = 'die';
+    el.addEventListener('click', (idx => () => onDieClick(idx))(i));
+    diceRow.appendChild(el);
+    diceEls.push(el);
+  }
+
+  state.dice = Array.from({ length: 6 }, () => ({
+    value: 1 + Math.floor(Math.random() * 6),
+    set: false,
+    selected: false
+  }));
+
+  renderAll();
+
+  $('btnRoll').addEventListener('click', doRoll);
+  $('btnSet').addEventListener('click', doSet);
+  $('btnBank').addEventListener('click', doBank);
+  $('btnAuto').addEventListener('click', autoSelect);
+  $('ovBtn').addEventListener('click', newGame);
+
+  document.addEventListener('keydown', function(e){
+    if (e.code === 'Space'){
+      e.preventDefault();
+      if (!$('btnRoll').disabled) doRoll();
+      else if (!$('btnBank').disabled) doBank();
+      else if (!$('btnSet').disabled) doSet();
+    }
+  });
+
+  updateAll();
+})();
+
+})();
+</script>
+</body>
+</html>
